@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -204,6 +204,30 @@ namespace AvalonDock.Controls
 		}
 
 		#endregion CanMove
+
+		#region CanDockAsTabbedDocument
+		/// <summary><see cref="CanDockAsTabbedDocument"/> dependency property.</summary>
+		public static readonly DependencyProperty CanDockAsTabbedDocumentProperty = DependencyProperty.Register(nameof(CanDockAsTabbedDocument), typeof(bool), typeof(LayoutAnchorableItem), new FrameworkPropertyMetadata((bool)true,
+					OnCanDockAsTabbedDocumentChanged));
+
+
+		/// <summary>Gets/sets wether the user can dock the anchorable item as a tabbed document.</summary>
+		[Bindable(true), Description("Gets/sets wether the user can dock the anchorable item as a tabbed document."), Category("Anchorable")]
+		public bool CanDockAsTabbedDocument
+		{
+			get => (bool)GetValue(CanDockAsTabbedDocumentProperty);
+			set => SetValue(CanDockAsTabbedDocumentProperty, value);
+		}
+
+		/// <summary>Handles changes to the <see cref="CanDockAsTabbedDocument"/> property.</summary>
+		private static void OnCanDockAsTabbedDocumentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => ((LayoutAnchorableItem)d).OnCanDockAsTabbedDocumentChanged(e);
+
+		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="CanDockAsTabbedDocument"/> property.</summary>
+		protected virtual void OnCanDockAsTabbedDocumentChanged(DependencyPropertyChangedEventArgs e)
+		{
+			if (_anchorable != null) _anchorable.CanDockAsTabbedDocument = (bool)e.NewValue;
+		}
+		#endregion CanDockAsTabbedDocument
 
 		#endregion Properties
 
