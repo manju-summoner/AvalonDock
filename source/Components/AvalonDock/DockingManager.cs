@@ -1788,8 +1788,10 @@ namespace AvalonDock
 				Dispatcher.BeginInvoke(new Action(() =>
 				{
 					// Activate only inactive document
-					if (startDrag) fwc.AttachDrag();
-					fwc.Show();
+					if (startDrag)
+						fwc.AttachDrag(show);
+					if(show)
+						fwc.Show();
 				}), DispatcherPriority.Send);
 			}
 		}
