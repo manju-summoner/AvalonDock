@@ -340,12 +340,12 @@ namespace AvalonDock.Controls
 				Resources.MergedDictionaries.Add(new ResourceDictionary { Source = manager.Theme.GetResourceUri() });
 		}
 
-		internal void AttachDrag(bool onActivated = true)
+		internal void AttachDrag(bool onLoaded = true)
 		{
-			if (onActivated)
+			if (onLoaded)
 			{
 				_attachDrag = true;
-				Activated += OnActivated;
+				Loaded += AttachDragOnLoaded;
 			}
 			else
 			{
@@ -625,9 +625,9 @@ namespace AvalonDock.Controls
 			}
 		}
 
-		private void OnActivated(object sender, EventArgs e)
+		private void AttachDragOnLoaded(object sender, EventArgs e)
 		{
-			Activated -= OnActivated;
+			Loaded -= AttachDragOnLoaded;
 
 			if (!_attachDrag || Mouse.LeftButton != MouseButtonState.Pressed) return;
 			var windowHandle = new WindowInteropHelper(this).Handle;
