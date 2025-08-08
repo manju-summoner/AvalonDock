@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -153,7 +153,7 @@ namespace Microsoft.Windows.Shell
 			}
 			else
 			{
-				_window.SourceInitialized += (sender, e) =>
+				_window.Loaded += (sender, e) =>
 				{
 					_hwnd = new WindowInteropHelper(_window).Handle;
 					Assert.IsNotDefault(_hwnd);
