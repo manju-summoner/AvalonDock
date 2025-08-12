@@ -754,12 +754,22 @@ namespace AvalonDock.Controls
 			if (MoveToPreviousTabGroupCommand == null)
 				MoveToPreviousTabGroupCommand = _defaultMoveToPreviousTabGroupCommand;
 
-			if(!BindingOperations.IsDataBound(this, IsSelectedProperty))
+			if(!IsOneWayBinding(IsSelectedProperty))
 				IsSelected = LayoutElement.IsSelected;
-			if(!BindingOperations.IsDataBound(this, IsActiveProperty))
+			if(!IsOneWayBinding(IsActiveProperty))
 				IsActive = LayoutElement.IsActive;
-			if(!BindingOperations.IsDataBound(this, CanCloseProperty))
+			if(!IsOneWayBinding(CanCloseProperty))
 				CanClose = LayoutElement.CanClose;
+		}
+
+		bool IsOneWayBinding(DependencyProperty property)
+		{
+			var binding = BindingOperations.GetBinding(this, property);
+			if (binding is null)
+				return false;
+			if (binding?.Mode is BindingMode.Default && property.GetMetadata(DependencyObjectType) is FrameworkPropertyMetadata fpm)
+				return !fpm.BindsTwoWayByDefault;
+			return binding.Mode is BindingMode.Default || binding.Mode == BindingMode.OneWay;
 		}
 
 		protected virtual void OnVisibilityChanged()
