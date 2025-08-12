@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -754,9 +754,12 @@ namespace AvalonDock.Controls
 			if (MoveToPreviousTabGroupCommand == null)
 				MoveToPreviousTabGroupCommand = _defaultMoveToPreviousTabGroupCommand;
 
-			IsSelected = LayoutElement.IsSelected;
-			IsActive = LayoutElement.IsActive;
-			CanClose = LayoutElement.CanClose;
+			if(!BindingOperations.IsDataBound(this, IsSelectedProperty))
+				IsSelected = LayoutElement.IsSelected;
+			if(!BindingOperations.IsDataBound(this, IsActiveProperty))
+				IsActive = LayoutElement.IsActive;
+			if(!BindingOperations.IsDataBound(this, CanCloseProperty))
+				CanClose = LayoutElement.CanClose;
 		}
 
 		protected virtual void OnVisibilityChanged()
