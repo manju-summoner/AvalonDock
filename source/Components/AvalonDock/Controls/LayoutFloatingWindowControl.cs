@@ -810,6 +810,7 @@ namespace AvalonDock.Controls
 				});
 
 				_rootPresenter = new Border { Child = new AdornerDecorator { Child = Content }, Focusable = true };
+				_rootPresenter.LayoutTransform = _owner.LayoutTransform;
 				AutomationProperties.SetName(_rootPresenter, "FloatingWindowHost");
 				_rootPresenter.SetBinding(Border.BackgroundProperty, new Binding(nameof(Background)) { Source = _owner });
 				_wpfContentHost.RootVisual = _rootPresenter;
