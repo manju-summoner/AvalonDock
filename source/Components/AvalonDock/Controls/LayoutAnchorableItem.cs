@@ -305,7 +305,10 @@ namespace AvalonDock.Controls
 					}
 				}
 			}
-			base.OnVisibilityChanged();
+			else
+			{
+				base.OnVisibilityChanged();
+			}
 		}
 
 		#endregion Overrides
