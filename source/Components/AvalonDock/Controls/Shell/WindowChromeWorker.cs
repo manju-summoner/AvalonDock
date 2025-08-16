@@ -967,6 +967,9 @@ namespace Microsoft.Windows.Shell
 
 		private void _UnhookCustomChrome()
 		{
+			if (_hwndSource is null)
+				return;
+
 			Assert.IsNotDefault(_hwnd);
 			Assert.IsNotNull(_window);
 			if (!_isHooked) return;
