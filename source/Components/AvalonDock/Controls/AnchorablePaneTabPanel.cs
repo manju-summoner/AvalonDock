@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -29,6 +29,22 @@ namespace AvalonDock.Controls
 
 		#endregion Constructors
 
+		#region Properties
+
+		#region IsSingle
+
+		public bool IsSingle
+		{
+			get { return (bool)GetValue(IsSingleProperty); }
+		    protected set { SetValue(IsSingleProperty, value); }
+		}
+		public static readonly DependencyProperty IsSingleProperty =
+			DependencyProperty.Register(nameof(IsSingle), typeof(bool), typeof(AnchorablePaneTabPanel), new PropertyMetadata(false));
+		
+		#endregion IsSingle
+
+		#endregion
+
 		#region Overrides
 
 		protected override Size MeasureOverride(Size availableSize)
@@ -57,6 +73,8 @@ namespace AvalonDock.Controls
 
 		protected override Size ArrangeOverride(Size finalSize)
 		{
+			IsSingle = Children.Count == 1;
+
 			var visibleChildren = Children.Cast<UIElement>().Where(ch => ch.Visibility != System.Windows.Visibility.Collapsed);
 
 			double finalWidth = finalSize.Width;
@@ -101,7 +119,6 @@ namespace AvalonDock.Controls
 
 			base.OnMouseLeave(e);
 		}
-
 		#endregion Overrides
 	}
 }
