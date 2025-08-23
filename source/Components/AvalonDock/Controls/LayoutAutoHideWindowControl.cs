@@ -40,6 +40,7 @@ namespace AvalonDock.Controls
 		private IntPtr parentWindowHandle;
 		private readonly ContentPresenter _internalHostPresenter = new ContentPresenter();
 		private Grid _internalGrid = null;
+		private Border _border = null;
 		private AnchorSide _side;
 		private LayoutGridResizerControl _resizer = null;
 		private DockingManager _manager;
@@ -101,6 +102,35 @@ namespace AvalonDock.Controls
 		}
 
 		#endregion Background
+
+		#region BorderBrush
+		/// <summary><see cref="BorderBrush"/> dependency property.</summary>
+		public static readonly DependencyProperty BorderBrushProperty = DependencyProperty.Register(nameof(BorderBrush), typeof(Brush), typeof(LayoutAutoHideWindowControl),
+				new FrameworkPropertyMetadata(null));
+
+		/// <summary>Gets/sets the border brush of the autohide childwindow.</summary>
+		[Bindable(true), Description("Gets/sets the border brush of the autohide childwindow."), Category("Other")]
+		public Brush BorderBrush
+		{
+			get => (Brush)GetValue(BorderBrushProperty);
+			set => SetValue(BorderBrushProperty, value);
+		}
+
+		#endregion BorderBrush
+
+		#region BorderThickness
+		/// <summary><see cref="BorderThickness"/> dependency property.</summary>
+		public static readonly DependencyProperty BorderThicknessProperty = DependencyProperty.Register(nameof(BorderThickness), typeof(Thickness), typeof(LayoutAutoHideWindowControl),
+				new FrameworkPropertyMetadata(new Thickness(1)));
+
+		/// <summary>Gets/sets the border thickness of the autohide childwindow.</summary>
+		[Bindable(true), Description("Gets/sets the border thickness of the autohide childwindow."), Category("Other")]
+		public Thickness BorderThickness
+		{
+			get => (Thickness)GetValue(BorderThicknessProperty);
+			set => SetValue(BorderThicknessProperty, value);
+		}
+		#endregion BorderThickness
 
 		public ILayoutElement Model => _model;
 
@@ -282,6 +312,14 @@ namespace AvalonDock.Controls
 		{
 			_internalGrid = new Grid { FlowDirection = FlowDirection.LeftToRight };
 			_internalGrid.SetBinding(Panel.BackgroundProperty, new Binding(nameof(Grid.Background)) { Source = this });
+
+			_border = new Border();
+			_border.SetBinding(Border.BorderBrushProperty, new Binding(nameof(BorderBrush)) { Source = this });
+			_border.SetBinding(Border.BorderThicknessProperty, new Binding(nameof(BorderThickness)) { Source = this });
+			Grid.SetColumnSpan(_border, 2);
+			Grid.SetRowSpan(_border, 2);
+			Panel.SetZIndex(_border, 1);
+			_internalGrid.Children.Add(_border);
 
 			_internalHost = new LayoutAnchorableControl { Model = _model, Style = AnchorableStyle };
 			_internalHost.SetBinding(FlowDirectionProperty, new Binding("Model.Root.Manager.FlowDirection") { Source = this });
