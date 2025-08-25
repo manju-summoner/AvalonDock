@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -1356,6 +1356,13 @@ namespace Standard
 		REDRAW = HREDRAW | VREDRAW,
 	}
 
+	internal enum Monitor_DPI_Type
+	{
+		MDT_EFFECTIVE_DPI = 0,
+		MDT_ANGULAR_DPI = 1,
+		MDT_RAW_DPI = 2,
+		MDT_DEFAULT = MDT_EFFECTIVE_DPI
+	}
 	#endregion Native Values
 
 	#region SafeHandles
@@ -3244,5 +3251,19 @@ namespace Standard
 		public static extern HRESULT GetCurrentProcessExplicitAppUserModelID([Out, MarshalAs(UnmanagedType.LPWStr)] out string AppID);
 
 		#endregion Win7 declarations
+
+
+		#region Per-monitor DPI
+		// Win10 Anniversary update (1607 / 14393) GetDpiForWindow
+		[DllImport("user32.dll")]
+		public static extern uint GetDpiForWindow(IntPtr hwnd);
+
+		// Win8.1 per monitor DPI API
+		[DllImport("shcore.dll")]
+		public static extern int GetDpiForMonitor(IntPtr hmonitor, Monitor_DPI_Type dpiType, out uint dpiX, out uint dpiY);
+
+		public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
+
+		#endregion
 	}
 }

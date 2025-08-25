@@ -7,7 +7,7 @@
    License (Ms-PL) as published at https://opensource.org/licenses/MS-PL
  ************************************************************************/
 
-/**************************************************************************\
+ /**************************************************************************\
     Copyright Microsoft Corporation. All Rights Reserved.
 \**************************************************************************/
 
@@ -246,8 +246,8 @@ namespace Microsoft.Windows.Shell
 			var rcWindow = NativeMethods.GetWindowRect(_hwnd);
 			var rcAdjustedClient = _GetAdjustedWindowRect(rcWindow);
 
-			var rcLogicalWindow = DpiHelper.DeviceRectToLogical(new Rect(rcWindow.Left, rcWindow.Top, rcWindow.Width, rcWindow.Height));
-			var rcLogicalClient = DpiHelper.DeviceRectToLogical(new Rect(rcAdjustedClient.Left, rcAdjustedClient.Top, rcAdjustedClient.Width, rcAdjustedClient.Height));
+			var rcLogicalWindow = DpiHelper.DeviceRectToLogical(_hwnd, new Rect(rcWindow.Left, rcWindow.Top, rcWindow.Width, rcWindow.Height));
+			var rcLogicalClient = DpiHelper.DeviceRectToLogical(_hwnd, new Rect(rcAdjustedClient.Left, rcAdjustedClient.Top, rcAdjustedClient.Width, rcAdjustedClient.Height));
 
 			var nonClientThickness = new Thickness(
 			   rcLogicalWindow.Left - rcLogicalClient.Left,
@@ -334,7 +334,7 @@ namespace Microsoft.Windows.Shell
 			_hasUserMovedWindow = false;
 			var wp = NativeMethods.GetWindowPlacement(_hwnd);
 			var adjustedDeviceRc = _GetAdjustedWindowRect(new RECT { Bottom = 100, Right = 100 });
-			var adjustedTopLeft = DpiHelper.DevicePixelsToLogical(new Point(wp.rcNormalPosition.Left - adjustedDeviceRc.Left, wp.rcNormalPosition.Top - adjustedDeviceRc.Top));
+			var adjustedTopLeft = DpiHelper.DevicePixelsToLogical(_hwnd, new Point(wp.rcNormalPosition.Left - adjustedDeviceRc.Left, wp.rcNormalPosition.Top - adjustedDeviceRc.Top));
 			_window.Top = adjustedTopLeft.Y;
 			_window.Left = adjustedTopLeft.X;
 		}
@@ -363,7 +363,7 @@ namespace Microsoft.Windows.Shell
 				if (_window.WindowState != WindowState.Normal) return false;
 				var adjustedOffset = _GetAdjustedWindowRect(new RECT { Bottom = 100, Right = 100 });
 				var windowTopLeft = new Point(_window.Left, _window.Top);
-				windowTopLeft -= (Vector)DpiHelper.DevicePixelsToLogical(new Point(adjustedOffset.Left, adjustedOffset.Top));
+				windowTopLeft -= (Vector)DpiHelper.DevicePixelsToLogical(_hwnd, new Point(adjustedOffset.Left, adjustedOffset.Top));
 				return _window.RestoreBounds.Location != windowTopLeft;
 			}
 		}
@@ -438,14 +438,14 @@ namespace Microsoft.Windows.Shell
 			if (lRet != IntPtr.Zero) return lRet;
 			var mousePosScreen = new Point(Utility.GET_X_LPARAM(lParam), Utility.GET_Y_LPARAM(lParam));
 			var windowPosition = _GetWindowRect();
-			var ht = _HitTestNca(DpiHelper.DeviceRectToLogical(windowPosition), DpiHelper.DevicePixelsToLogical(mousePosScreen));
+			var ht = _HitTestNca(DpiHelper.DeviceRectToLogical(_hwnd, windowPosition), DpiHelper.DevicePixelsToLogical(_hwnd, mousePosScreen));
 			// Don't blindly respect HTCAPTION.
 			// We want UIElements in the caption area to be actionable so run through a hittest first.
 			if (ht != HT.CLIENT)
 			{
 				var mousePosWindow = mousePosScreen;
 				mousePosWindow.Offset(-windowPosition.X, -windowPosition.Y);
-				mousePosWindow = DpiHelper.DevicePixelsToLogical(mousePosWindow);
+				mousePosWindow = DpiHelper.DevicePixelsToLogical(_hwnd, mousePosWindow);
 				var inputElement = _window.InputHitTest(mousePosWindow);
 				if (inputElement != null && WindowChrome.GetIsHitTestVisibleInChrome(inputElement)) ht = HT.CLIENT;
 			}
@@ -533,7 +533,7 @@ namespace Microsoft.Windows.Shell
 		{
 			// This is only intercepted to deal with bugs in Window in .Net 3.5 and below.
 			Assert.IsTrue(Utility.IsPresentationFrameworkVersionLessThan4);
-
+			
 			_isUserResizing = true;
 
 			// On Win7 if the user is dragging the window out of the maximized state then we don't want to use that location
@@ -639,22 +639,22 @@ namespace Microsoft.Windows.Shell
 		{
 			const MF mfEnabled = MF.ENABLED | MF.BYCOMMAND;
 			const MF mfDisabled = MF.GRAYED | MF.DISABLED | MF.BYCOMMAND;
-
+			
 			var state = assumeState ?? _GetHwndState();
-
+			
 			if (null == assumeState && _lastMenuState == state) return;
 			_lastMenuState = state;
-
+			
 			var modified = _ModifyStyle(WS.VISIBLE, 0);
 			var hMenu = NativeMethods.GetSystemMenu(_hwnd, false);
 			if (hMenu != IntPtr.Zero)
 			{
 				var dwStyle = (WS)NativeMethods.GetWindowLongPtr(_hwnd, GWL.STYLE).ToInt32();
-
+				
 				var canMinimize = Utility.IsFlagSet((int)dwStyle, (int)WS.MINIMIZEBOX);
 				var canMaximize = Utility.IsFlagSet((int)dwStyle, (int)WS.MAXIMIZEBOX);
 				var canSize = Utility.IsFlagSet((int)dwStyle, (int)WS.THICKFRAME);
-
+				
 				switch (state)
 				{
 					case WindowState.Maximized:
@@ -664,7 +664,7 @@ namespace Microsoft.Windows.Shell
 						NativeMethods.EnableMenuItem(hMenu, SC.MINIMIZE, canMinimize ? mfEnabled : mfDisabled);
 						NativeMethods.EnableMenuItem(hMenu, SC.MAXIMIZE, mfDisabled);
 						break;
-
+					
 					case WindowState.Minimized:
 						NativeMethods.EnableMenuItem(hMenu, SC.RESTORE, mfEnabled);
 						NativeMethods.EnableMenuItem(hMenu, SC.MOVE, mfDisabled);
@@ -672,7 +672,7 @@ namespace Microsoft.Windows.Shell
 						NativeMethods.EnableMenuItem(hMenu, SC.MINIMIZE, mfDisabled);
 						NativeMethods.EnableMenuItem(hMenu, SC.MAXIMIZE, canMaximize ? mfEnabled : mfDisabled);
 						break;
-
+					
 					default:
 						NativeMethods.EnableMenuItem(hMenu, SC.RESTORE, mfDisabled);
 						NativeMethods.EnableMenuItem(hMenu, SC.MOVE, mfEnabled);
@@ -690,10 +690,10 @@ namespace Microsoft.Windows.Shell
 			if (_hwnd == IntPtr.Zero) return;
 			// Don't rely on SystemParameters2 for this, just make the check ourselves.
 			var frameState = NativeMethods.DwmIsCompositionEnabled();
-
+			
 			if (!force && frameState == _isGlassEnabled) return;
 			_isGlassEnabled = frameState && _chromeInfo.GlassFrameThickness != default;
-
+			
 			if (_isGlassEnabled)
 			{
 				_ClearRoundingRegion();
@@ -717,26 +717,26 @@ namespace Microsoft.Windows.Shell
 			// We're early - WPF hasn't necessarily updated the state of the window.
 			// Need to query it ourselves.
 			var wpl = NativeMethods.GetWindowPlacement(_hwnd);
-
+			
 			if (wpl.showCmd == SW.SHOWMAXIMIZED)
 			{
 				int left;
 				int top;
 
 				if (wp.HasValue)
-				{
+				{ 
 					left = wp.Value.x;
 					top = wp.Value.y;
 				}
 				else
-				{
-					var r = _GetWindowRect();
+				{ 
+					var r = _GetWindowRect(); 
 					left = (int)r.Left;
-					top = (int)r.Top;
+					top = (int)r.Top; 
 				}
 
 				var hMon = NativeMethods.MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
-
+				
 				var mi = NativeMethods.GetMonitorInfo(hMon);
 				var rcMax = mi.rcWork;
 				// The location of maximized window takes into account the border that Windows was
@@ -744,13 +744,13 @@ namespace Microsoft.Windows.Shell
 				rcMax.Offset(-left, -top);
 
 				var hrgn = IntPtr.Zero;
-				try
-				{
-					hrgn = NativeMethods.CreateRectRgnIndirect(rcMax);
-					NativeMethods.SetWindowRgn(_hwnd, hrgn, NativeMethods.IsWindowVisible(_hwnd));
-					hrgn = IntPtr.Zero;
-				}
-				finally
+				try 
+				{ 
+					hrgn = NativeMethods.CreateRectRgnIndirect(rcMax); 
+					NativeMethods.SetWindowRgn(_hwnd, hrgn, NativeMethods.IsWindowVisible(_hwnd)); 
+					hrgn = IntPtr.Zero; 
+				} 
+				finally 
 				{
 					Utility.SafeDeleteObject(ref hrgn);
 				}
@@ -762,9 +762,9 @@ namespace Microsoft.Windows.Shell
 				// Use the size if it's specified.
 				if (null != wp && !Utility.IsFlagSet(wp.Value.flags, (int)SWP.NOSIZE))
 					windowSize = new Size((double)wp.Value.cx, (double)wp.Value.cy);
-				else if (null != wp && (_lastRoundingState == _window.WindowState))
+				else if (null != wp && (_lastRoundingState == _window.WindowState)) 
 					return;
-				else
+				else 
 					windowSize = _GetWindowRect().Size;
 
 				_lastRoundingState = _window.WindowState;
@@ -773,9 +773,9 @@ namespace Microsoft.Windows.Shell
 				try
 				{
 					var shortestDimension = Math.Min(windowSize.Width, windowSize.Height);
-					var topLeftRadius = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.CornerRadius.TopLeft, 0)).X;
+					var topLeftRadius = DpiHelper.LogicalPixelsToDevice(_hwnd, new Point(_chromeInfo.CornerRadius.TopLeft, 0)).X; 
 					topLeftRadius = Math.Min(topLeftRadius, shortestDimension / 2);
-
+					
 					if (_IsUniform(_chromeInfo.CornerRadius))
 					{
 						// RoundedRect HRGNs require an additional pixel of padding.
@@ -789,33 +789,33 @@ namespace Microsoft.Windows.Shell
 						// of the window.
 						hRegion = _CreateRoundRectRgn(new Rect(0, 0, windowSize.Width / 2 + topLeftRadius, windowSize.Height / 2 + topLeftRadius), topLeftRadius);
 
-						var topRightRadius = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.CornerRadius.TopRight, 0)).X;
+						var topRightRadius = DpiHelper.LogicalPixelsToDevice(_hwnd, new Point(_chromeInfo.CornerRadius.TopRight, 0)).X;
 						topRightRadius = Math.Min(topRightRadius, shortestDimension / 2);
-						var topRightRegionRect = new Rect(0, 0, windowSize.Width / 2 + topRightRadius, windowSize.Height / 2 + topRightRadius);
-						topRightRegionRect.Offset(windowSize.Width / 2 - topRightRadius, 0);
+						var topRightRegionRect = new Rect(0, 0, windowSize.Width / 2 + topRightRadius, windowSize.Height / 2 + topRightRadius); 
+						topRightRegionRect.Offset(windowSize.Width / 2 - topRightRadius, 0); 
 						Assert.AreEqual(topRightRegionRect.Right, windowSize.Width);
-
+						
 						_CreateAndCombineRoundRectRgn(hRegion, topRightRegionRect, topRightRadius);
-
-						var bottomLeftRadius = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.CornerRadius.BottomLeft, 0)).X;
+						
+						var bottomLeftRadius = DpiHelper.LogicalPixelsToDevice(_hwnd, new Point(_chromeInfo.CornerRadius.BottomLeft, 0)).X; 
 						bottomLeftRadius = Math.Min(bottomLeftRadius, shortestDimension / 2);
-						var bottomLeftRegionRect = new Rect(0, 0, windowSize.Width / 2 + bottomLeftRadius, windowSize.Height / 2 + bottomLeftRadius);
-						bottomLeftRegionRect.Offset(0, windowSize.Height / 2 - bottomLeftRadius);
+						var bottomLeftRegionRect = new Rect(0, 0, windowSize.Width / 2 + bottomLeftRadius, windowSize.Height / 2 + bottomLeftRadius); 
+						bottomLeftRegionRect.Offset(0, windowSize.Height / 2 - bottomLeftRadius); 
 						Assert.AreEqual(bottomLeftRegionRect.Bottom, windowSize.Height);
-
+						
 						_CreateAndCombineRoundRectRgn(hRegion, bottomLeftRegionRect, bottomLeftRadius);
-
-						var bottomRightRadius = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.CornerRadius.BottomRight, 0)).X;
+						
+						var bottomRightRadius = DpiHelper.LogicalPixelsToDevice(_hwnd, new Point(_chromeInfo.CornerRadius.BottomRight, 0)).X; 
 						bottomRightRadius = Math.Min(bottomRightRadius, shortestDimension / 2);
 						var bottomRightRegionRect = new Rect(0, 0, windowSize.Width / 2 + bottomRightRadius, windowSize.Height / 2 + bottomRightRadius);
-						bottomRightRegionRect.Offset(windowSize.Width / 2 - bottomRightRadius, windowSize.Height / 2 - bottomRightRadius);
-						Assert.AreEqual(bottomRightRegionRect.Right, windowSize.Width);
+						bottomRightRegionRect.Offset(windowSize.Width / 2 - bottomRightRadius, windowSize.Height / 2 - bottomRightRadius); 
+						Assert.AreEqual(bottomRightRegionRect.Right, windowSize.Width); 
 						Assert.AreEqual(bottomRightRegionRect.Bottom, windowSize.Height);
-
+						
 						_CreateAndCombineRoundRectRgn(hRegion, bottomRightRegionRect, bottomRightRadius);
 					}
 
-					NativeMethods.SetWindowRgn(_hwnd, hRegion, NativeMethods.IsWindowVisible(_hwnd));
+					NativeMethods.SetWindowRgn(_hwnd, hRegion, NativeMethods.IsWindowVisible(_hwnd)); 
 					hRegion = IntPtr.Zero;
 				}
 				finally
@@ -830,13 +830,13 @@ namespace Microsoft.Windows.Shell
 		{
 			// Round outwards.
 			if (DoubleUtilities.AreClose(0, radius))
-				return NativeMethods.CreateRectRgn((int)Math.Floor(region.Left), (int)Math.Floor(region.Top),
+				return NativeMethods.CreateRectRgn((int)Math.Floor(region.Left), (int)Math.Floor(region.Top), 
 													(int)Math.Ceiling(region.Right), (int)Math.Ceiling(region.Bottom));
 
 			// RoundedRect HRGNs require an additional pixel of padding on the bottom right to look correct.
 			return NativeMethods.CreateRoundRectRgn(
 				(int)Math.Floor(region.Left),
-				(int)Math.Floor(region.Top),
+				(int)Math.Floor(region.Top), 
 				(int)Math.Ceiling(region.Right) + 1,
 				(int)Math.Ceiling(region.Bottom) + 1,
 				(int)Math.Ceiling(radius),
@@ -896,9 +896,9 @@ namespace Microsoft.Windows.Shell
 				_hwndSource.CompositionTarget.BackgroundColor = Colors.Transparent;
 
 				// Thickness is going to be DIPs, need to convert to system coordinates.
-				var deviceTopLeft = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.GlassFrameThickness.Left, _chromeInfo.GlassFrameThickness.Top));
-				var deviceBottomRight = DpiHelper.LogicalPixelsToDevice(new Point(_chromeInfo.GlassFrameThickness.Right, _chromeInfo.GlassFrameThickness.Bottom));
-
+				var deviceTopLeft = DpiHelper.LogicalPixelsToDevice(_hwnd, new Point(_chromeInfo.GlassFrameThickness.Left, _chromeInfo.GlassFrameThickness.Top));
+				var deviceBottomRight = DpiHelper.LogicalPixelsToDevice(_hwnd, new Point(_chromeInfo.GlassFrameThickness.Right, _chromeInfo.GlassFrameThickness.Bottom));
+				
 				var dwmMargin = new MARGINS
 				{
 					// err on the side of pushing in glass an extra pixel.
@@ -926,22 +926,22 @@ namespace Microsoft.Windows.Shell
 		{
 			// Determine if hit test is for resizing, default middle (1,1).
 			var uRow = 1;
-			var uCol = 1;
+			var uCol = 1; 
 			var onResizeBorder = false;
 
 			// Determine if the point is at the top or bottom of the window.
 			if (mousePosition.Y >= windowPosition.Top && mousePosition.Y < windowPosition.Top + _chromeInfo.ResizeBorderThickness.Top + _chromeInfo.CaptionHeight)
-			{
+			{ 
 				onResizeBorder = (mousePosition.Y < (windowPosition.Top + _chromeInfo.ResizeBorderThickness.Top));
 				uRow = 0; // top (caption or resize border)
 			}
-			else if (mousePosition.Y < windowPosition.Bottom && mousePosition.Y >= windowPosition.Bottom - (int)_chromeInfo.ResizeBorderThickness.Bottom)
+			else if (mousePosition.Y < windowPosition.Bottom && mousePosition.Y >= windowPosition.Bottom - (int)_chromeInfo.ResizeBorderThickness.Bottom) 
 				uRow = 2; // bottom
 
 			// Determine if the point is at the left or right of the window.
-			if (mousePosition.X >= windowPosition.Left && mousePosition.X < windowPosition.Left + (int)_chromeInfo.ResizeBorderThickness.Left)
+			if (mousePosition.X >= windowPosition.Left && mousePosition.X < windowPosition.Left + (int)_chromeInfo.ResizeBorderThickness.Left) 
 				uCol = 0; // left side
-			else if (mousePosition.X < windowPosition.Right && mousePosition.X >= windowPosition.Right - _chromeInfo.ResizeBorderThickness.Right)
+			else if (mousePosition.X < windowPosition.Right && mousePosition.X >= windowPosition.Right - _chromeInfo.ResizeBorderThickness.Right) 
 				uCol = 2; // right side
 
 			// If the cursor is in one of the top edges by the caption bar, but below the top resize border,
@@ -970,7 +970,7 @@ namespace Microsoft.Windows.Shell
 			if (_hwndSource is null)
 				return;
 
-			Assert.IsNotDefault(_hwnd);
+			Assert.IsNotDefault(_hwnd); 
 			Assert.IsNotNull(_window);
 			if (!_isHooked) return;
 			_hwndSource.RemoveHook(_WndProc);
@@ -995,7 +995,7 @@ namespace Microsoft.Windows.Shell
 
 		private void _RestoreGlassFrame()
 		{
-			Assert.IsNull(_chromeInfo);
+			Assert.IsNull(_chromeInfo); 
 			Assert.IsNotNull(_window);
 
 			// Expect that this might be called on OSes other than Vista
