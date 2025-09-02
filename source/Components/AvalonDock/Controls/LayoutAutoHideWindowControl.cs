@@ -270,14 +270,23 @@ namespace AvalonDock.Controls
 							var newTransformGroup = new TransformGroup();
 							newTransformGroup.Children.Add(transform);
 							newTransformGroup.Children.Add(new TranslateTransform(-origin.X, -origin.Y));
+							newTransformGroup.Children.Add(CustomLayoutTransform);
 							return newTransformGroup;
 						}
 					}
 				}
 
-				return Transform.Identity;
+				return CustomLayoutTransform;
 			}
 		}
+
+		public Transform CustomLayoutTransform
+		{
+			get { return (Transform)GetValue(CustomLayoutTransformProperty); }
+			set { SetValue(CustomLayoutTransformProperty, value); }
+		}
+		public static readonly DependencyProperty CustomLayoutTransformProperty =
+			DependencyProperty.Register(nameof(CustomLayoutTransform), typeof(Transform), typeof(LayoutAutoHideWindowControl), new PropertyMetadata(Transform.Identity));
 
 		private void SetLayoutTransform()
 		{
@@ -286,8 +295,8 @@ namespace AvalonDock.Controls
 			// 2) An ancestor Viewbox changes its zoom (the Viewbox or its child changes size)
 			// We would also want to refresh when the visual tree changes such that an ancestor Viewbox is added, removed, or changed. However, this is completely unnecessary
 			// because the LayoutAutoHideWindowControl closes if a visual ancestor is changed: DockingManager.Unloaded handler calls _autoHideWindowManager?.HideAutoWindow()
-			if (ChildLayoutTransform is Transform transform && _internalHostPresenter.LayoutTransform.Value != transform.Value)
-			{
+			if (ChildLayoutTransform is Transform transform &&( _internalHostPresenter.LayoutTransform.Value != transform.Value || LayoutTransform.Value != ((Transform)transform.Inverse).Value))
+			{ 
 				LayoutTransform = (Transform)transform.Inverse;
 				_internalHostPresenter.LayoutTransform = transform;
 			}
