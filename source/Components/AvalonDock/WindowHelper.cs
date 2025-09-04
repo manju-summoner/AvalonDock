@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -24,7 +24,7 @@ namespace AvalonDock
 		public static void SetParentToMainWindowOf(this Window window, Visual element)
 		{
 			var wndParent = Window.GetWindow(element);
-			if (wndParent != null)
+			if (wndParent != null && wndParent.IsLoaded)
 				window.Owner = wndParent;
 			else
 			{
