@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -47,6 +47,8 @@ namespace AvalonDock.Controls
 		/// <param name="anchor"><see cref="LayoutAnchorControl"/> to pop out of the side panel.</param>
 		public void ShowAutoHideWindow(LayoutAnchorControl anchor)
 		{
+			if (!anchor.IsLoaded)
+				return;
 			if (_currentAutohiddenAnchor.GetValueOrDefault<LayoutAnchorControl>() != anchor)
 			{
 				StopCloseTimer();
