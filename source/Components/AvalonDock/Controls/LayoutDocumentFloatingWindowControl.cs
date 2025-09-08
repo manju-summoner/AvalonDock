@@ -12,9 +12,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 
 using AvalonDock.Commands;
+using AvalonDock.Converters;
 using AvalonDock.Layout;
 
 using Microsoft.Windows.Shell;
@@ -106,7 +108,7 @@ namespace AvalonDock.Controls
 			var manager = _model.Root.Manager;
 			Content = manager.CreateUIElementForModel(_model.RootPanel);
 			// TODO IsVisibleChanged
-			//SetBinding(SingleContentLayoutItemProperty, new Binding("Model.SinglePane.SelectedContent") { Source = this, Converter = new LayoutItemFromLayoutModelConverter() });
+			SetBinding(SingleContentLayoutItemProperty, new Binding("Model.SinglePane.SelectedContent") { Source = this, Converter = new LayoutItemFromLayoutModelConverter() });
 			_model.RootPanel.ChildrenCollectionChanged += RootPanelOnChildrenCollectionChanged;
 		}
 
