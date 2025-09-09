@@ -210,14 +210,14 @@ namespace AvalonDock.Layout
 			var dockablePanes =
 				root.Descendents()
 				.OfType<LayoutAnchorablePane>()
-				.Where(pane => pane != Parent);
+				.Where(pane => pane != Parent && !pane.IsHostedInFloatingWindow);
 
 			//look for active content parent pane
 			if (root.ActiveContent != null && root.ActiveContent != this) 
 				anchorablePane = root.ActiveContent.Parent as LayoutAnchorablePane;
 			//look for a pane on the right side
 			if (anchorablePane == null)
-				anchorablePane = dockablePanes.FirstOrDefault(pane => !pane.IsHostedInFloatingWindow && pane.GetSide() == AnchorSide.Right);
+				anchorablePane = dockablePanes.FirstOrDefault(pane => pane.GetSide() == AnchorSide.Right);
 			//look for an available pane
 			if (anchorablePane == null)
 				anchorablePane = dockablePanes.FirstOrDefault();

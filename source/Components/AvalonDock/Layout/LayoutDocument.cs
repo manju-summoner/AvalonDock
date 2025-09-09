@@ -125,7 +125,7 @@ namespace AvalonDock.Layout
 			var dockablePanes = 
 				root.Descendents()
 				.OfType<LayoutDocumentPane>()
-				.Where(pane => pane != Parent);
+				.Where(pane => pane != Parent && !pane.IsHostedInFloatingWindow);
 
 			//look for last focused document pane
 			if (root?.LastFocusedDocument != null && root.LastFocusedDocument != this) 
