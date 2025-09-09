@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -121,10 +121,23 @@ namespace AvalonDock.Layout
 		{
 			var root = Root as LayoutRoot;
 			LayoutDocumentPane documentPane = null;
-			if (root?.LastFocusedDocument != null && root.LastFocusedDocument != this) documentPane = root.LastFocusedDocument.Parent as LayoutDocumentPane;
-			if (documentPane == null) documentPane = root.Descendents().OfType<LayoutDocumentPane>().FirstOrDefault();
+
+			var dockablePanes = 
+				root.Descendents()
+				.OfType<LayoutDocumentPane>()
+				.Where(pane => pane != Parent);
+
+			//look for last focused document pane
+			if (root?.LastFocusedDocument != null && root.LastFocusedDocument != this) 
+				documentPane = root.LastFocusedDocument.Parent as LayoutDocumentPane;
+			//look for an available pane
+			if (documentPane == null) 
+				documentPane = dockablePanes.FirstOrDefault();
+
 			var added = false;
-			if (root?.Manager.LayoutUpdateStrategy != null) added = root.Manager.LayoutUpdateStrategy.BeforeInsertDocument(root, this, documentPane);
+			if (root?.Manager.LayoutUpdateStrategy != null) 
+				added = root.Manager.LayoutUpdateStrategy.BeforeInsertDocument(root, this, documentPane);
+
 			if (!added)
 			{
 				if (documentPane == null) throw new InvalidOperationException("Layout must contains at least one LayoutDocumentPane in order to host documents");

@@ -207,12 +207,21 @@ namespace AvalonDock.Layout
 			var root = Root as LayoutRoot;
 			LayoutAnchorablePane anchorablePane = null;
 
+			var dockablePanes =
+				root.Descendents()
+				.OfType<LayoutAnchorablePane>()
+				.Where(pane => pane != Parent);
+
 			//look for active content parent pane
-			if (root.ActiveContent != null && root.ActiveContent != this) anchorablePane = root.ActiveContent.Parent as LayoutAnchorablePane;
+			if (root.ActiveContent != null && root.ActiveContent != this) 
+				anchorablePane = root.ActiveContent.Parent as LayoutAnchorablePane;
 			//look for a pane on the right side
-			if (anchorablePane == null) anchorablePane = root.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault(pane => !pane.IsHostedInFloatingWindow && pane.GetSide() == AnchorSide.Right);
+			if (anchorablePane == null)
+				anchorablePane = dockablePanes.FirstOrDefault(pane => !pane.IsHostedInFloatingWindow && pane.GetSide() == AnchorSide.Right);
 			//look for an available pane
-			if (anchorablePane == null) anchorablePane = root.Descendents().OfType<LayoutAnchorablePane>().FirstOrDefault();
+			if (anchorablePane == null)
+				anchorablePane = dockablePanes.FirstOrDefault();
+
 			var added = false;
 			if (root.Manager.LayoutUpdateStrategy != null)
 				added = root.Manager.LayoutUpdateStrategy.BeforeInsertAnchorable(root, this, anchorablePane);
