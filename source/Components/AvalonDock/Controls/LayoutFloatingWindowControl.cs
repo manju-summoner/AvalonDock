@@ -712,9 +712,9 @@ namespace AvalonDock.Controls
 		{
 		}
 
-		#region Internal Classes
+		#region Public Classes
 
-		protected internal class FloatingWindowContentHost : HwndHost
+		public class FloatingWindowContentHost : HwndHost
 		{
 			#region fields
 
@@ -852,6 +852,6 @@ namespace AvalonDock.Controls
 			#endregion Methods
 		}
 
-		#endregion Internal Classes
+		#endregion Public Classes
 	}
 }
