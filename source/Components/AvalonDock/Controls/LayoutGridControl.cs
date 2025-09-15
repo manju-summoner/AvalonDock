@@ -37,7 +37,6 @@ namespace AvalonDock.Controls
 
 		private readonly LayoutPositionableGroup<T> _model;
 		private readonly Orientation _orientation;
-		private bool _initialized;
 		private ChildrenTreeChange? _asyncRefreshCalled;
 		private readonly ReentrantFlag _fixingChildrenDockLengths = new ReentrantFlag();
 		private Border _resizerGhost = null;
@@ -91,6 +90,8 @@ namespace AvalonDock.Controls
 				}), DispatcherPriority.Normal, null);
 			};
 			this.SizeChanged += OnSizeChanged;
+
+			UpdateChildren();
 		}
 
 		#endregion Overrides
@@ -114,11 +115,7 @@ namespace AvalonDock.Controls
 			var modelWithAtcualSize = _model as ILayoutPositionableElementWithActualSize;
 			modelWithAtcualSize.ActualWidth = ActualWidth;
 			modelWithAtcualSize.ActualHeight = ActualHeight;
-			if (!_initialized)
-			{
-				_initialized = true;
-				UpdateChildren();
-			}
+
 			AdjustFixedChildrenPanelSizes();
 		}
 
