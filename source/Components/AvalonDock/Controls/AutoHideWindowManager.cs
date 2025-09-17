@@ -84,7 +84,11 @@ namespace AvalonDock.Controls
 			{
 				if (_manager.AutoHideWindow.IsMouseOver ||
 					((LayoutAnchorable)_manager.AutoHideWindow.Model).IsActive ||
-					_manager.AutoHideWindow.IsResizing)
+					_manager.AutoHideWindow.IsResizing ||
+					(_manager.LeftSidePanel?.IsMouseOver ?? false) ||
+					(_manager.TopSidePanel?.IsMouseOver ?? false) ||
+					(_manager.RightSidePanel?.IsMouseOver ?? false) ||
+					(_manager.BottomSidePanel?.IsMouseOver ?? false))
 					return;
 
 				StopCloseTimer();
