@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -128,10 +128,7 @@ namespace AvalonDock.Controls
 			base.OnMouseDown(e);
 
 			if (!e.Handled)
-			{
 				_model.Root.Manager.ShowAutoHideWindow(this);
-				_model.IsActive = true;
-			}
 		}
 
 		protected override void OnMouseEnter(System.Windows.Input.MouseEventArgs e)
@@ -168,10 +165,7 @@ namespace AvalonDock.Controls
 			if (!_model.IsAutoHidden)
 				_model.IsSelectedChanged -= new EventHandler(_model_IsSelectedChanged);
 			else if (_model.IsSelected)
-			{
 				_model.Root.Manager.ShowAutoHideWindow(this);
-				_model.IsSelected = false;
-			}
 		}
 
 		private void _model_IsActiveChanged(object sender, EventArgs e)

@@ -147,6 +147,8 @@ namespace AvalonDock.Controls
 
 			_anchor = anchor;
 			_model = anchor.Model as LayoutAnchorable;
+			_model.IsSelected = true;
+			_model.IsActive = true;
 			_side = (anchor.Model.Parent.Parent as LayoutAnchorSide).Side;
 			_manager = _model.Root.Manager;
 			CreateInternalGrid();
@@ -165,6 +167,8 @@ namespace AvalonDock.Controls
 
 			if (_model == null) return;
 			_model.PropertyChanged -= _model_PropertyChanged;
+			_model.IsSelected = false;
+			_model.IsActive = false;
 			RemoveInternalGrid();
 			_anchor = null;
 			_model = null;
