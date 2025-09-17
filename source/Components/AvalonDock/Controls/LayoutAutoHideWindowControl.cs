@@ -171,25 +171,6 @@ namespace AvalonDock.Controls
 			_manager = null;
 			Visibility = Visibility.Hidden;
 		}
-
-		internal bool IsWin32MouseOver
-		{
-			get
-			{
-				var ptMouse = new Win32Helper.Win32Point();
-				if (!Win32Helper.GetCursorPos(ref ptMouse)) return false;
-				var location = this.PointToScreenDPI(new Point());
-				var rectWindow = this.GetScreenArea();
-				if (rectWindow.Contains(new Point(ptMouse.X, ptMouse.Y))) return true;
-
-				var manager = Model?.Root.Manager;
-				var anchor = manager?.FindVisualChildren<LayoutAnchorControl>().Where(c => c.Model == Model).FirstOrDefault();
-
-				return anchor != null && anchor.IsMouseOver;
-				//location = anchor.PointToScreenDPI(new Point());
-			}
-		}
-
 		#endregion Internal Methods
 
 		#region Overrides

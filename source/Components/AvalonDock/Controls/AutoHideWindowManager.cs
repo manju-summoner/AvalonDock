@@ -82,7 +82,7 @@ namespace AvalonDock.Controls
 			_closeTimer.Interval = TimeSpan.FromMilliseconds(_manager.AutoHideDelay);
 			_closeTimer.Tick += (s, e) =>
 			{
-				if (_manager.AutoHideWindow.IsWin32MouseOver ||
+				if (_manager.AutoHideWindow.IsMouseOver ||
 					((LayoutAnchorable)_manager.AutoHideWindow.Model).IsActive ||
 					_manager.AutoHideWindow.IsResizing)
 					return;
