@@ -137,6 +137,8 @@ namespace AvalonDock.Controls
 		/// <summary>Resizer</summary>
 		internal bool IsResizing { get; private set; }
 
+		public AnchorSide Side => _side;
+
 		#endregion Properties
 
 		#region Internal Methods

@@ -82,17 +82,44 @@ namespace AvalonDock.Controls
 			_closeTimer.Interval = TimeSpan.FromMilliseconds(_manager.AutoHideDelay);
 			_closeTimer.Tick += (s, e) =>
 			{
+				var sidePanel = GetSidePanel(_manager.AutoHideWindow);
+
 				if (_manager.AutoHideWindow.IsMouseOver ||
 					((LayoutAnchorable)_manager.AutoHideWindow.Model).IsActive ||
 					_manager.AutoHideWindow.IsResizing ||
-					(_manager.LeftSidePanel?.IsMouseOver ?? false) ||
-					(_manager.TopSidePanel?.IsMouseOver ?? false) ||
-					(_manager.RightSidePanel?.IsMouseOver ?? false) ||
-					(_manager.BottomSidePanel?.IsMouseOver ?? false))
+					(sidePanel?.IsMouseOver ?? false))
 					return;
 
 				StopCloseTimer();
 			};
+		}
+
+		private LayoutAnchorSideControl GetSidePanel(LayoutAutoHideWindowControl autoHideWindow)
+		{
+			if (autoHideWindow == null)
+				return null;
+			var side = autoHideWindow.Side;	
+			LayoutAnchorSideControl sidePanel;
+			switch (side)
+			{
+				case AnchorSide.Left:
+					sidePanel = _manager.LeftSidePanel;
+					break;
+				case AnchorSide.Top:
+					sidePanel = _manager.TopSidePanel;
+					break;
+				case AnchorSide.Right:
+					sidePanel = _manager.RightSidePanel;
+					break;
+				case AnchorSide.Bottom:
+					sidePanel = _manager.BottomSidePanel;
+					break;
+				default:
+					sidePanel = null;
+					break;
+			}
+
+			return sidePanel;
 		}
 
 		private void StartCloseTimer()
