@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -142,7 +142,7 @@
     <value>タブ付きドキュメントとしてドッキング</value>
   </data>
   <data name="Anchorable_Float" xml:space="preserve">
-    <value>フローティング</value>
+    <value>ウィンドウ化</value>
   </data>
   <data name="Anchorable_Hide" xml:space="preserve">
     <value>非表示</value>
