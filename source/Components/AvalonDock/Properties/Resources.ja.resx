@@ -166,7 +166,7 @@
     <value>タブ付きドキュメントとしてドッキング</value>
   </data>
   <data name="Document_Float" xml:space="preserve">
-    <value>フローティング</value>
+    <value>ウィンドウ化</value>
   </data>
   <data name="Document_MoveToNextTabGroup" xml:space="preserve">
     <value>次のタブ グループへ移動</value>
