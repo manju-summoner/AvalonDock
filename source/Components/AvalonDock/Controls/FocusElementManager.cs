@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -21,7 +21,7 @@ using System.Windows.Threading;
 
 namespace AvalonDock.Controls
 {
-	internal static class FocusElementManager
+	public static class FocusElementManager
 	{
 		#region fields
 
@@ -34,6 +34,10 @@ namespace AvalonDock.Controls
 		private static WeakReference _lastFocusedElementBeforeEnterMenuMode = null;
 
 		#endregion fields
+
+		#region Public Properties
+		public static bool IsEnabled { get; set; }
+		#endregion
 
 		#region Internal Methods
 
@@ -128,6 +132,9 @@ namespace AvalonDock.Controls
 		/// <param name="model"></param>
 		internal static void SetFocusOnLastElement(ILayoutElement model)
 		{
+			if (!IsEnabled)
+				return;
+
 			bool focused = false;
 			IInputElement objectToFocus;
 			if (_modelFocusedElement.GetValue(model, out objectToFocus))
