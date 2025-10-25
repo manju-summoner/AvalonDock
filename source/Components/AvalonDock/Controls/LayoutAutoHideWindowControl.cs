@@ -389,12 +389,14 @@ namespace AvalonDock.Controls
 		{
 			var window = Window.GetWindow(this);
 			var currentPoint = Mouse.GetPosition(window);
+			var diff = currentPoint - _prevPoint;
+			var transformedDiff = this.LayoutTransform.Transform(new Point(diff.X, diff.Y));
 
 			double delta;
 			if (_side == AnchorSide.Right || _side == AnchorSide.Left)
-				delta = currentPoint.X - _prevPoint.X;
+				delta = transformedDiff.X;
 			else
-				delta = currentPoint.Y - _prevPoint.Y;
+				delta = transformedDiff.Y;
 			_prevPoint = currentPoint;
 
 			switch (_side)
