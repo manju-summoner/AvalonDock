@@ -44,11 +44,9 @@ namespace AvalonDock.Controls
 		private AnchorSide _side;
 		private LayoutGridResizerControl _resizer = null;
 		private DockingManager _manager;
-		private Border _resizerGhost = null;
-		private Window _resizerWindowHost = null;
-		private Vector _initialStartPoint;
 		private List<FrameworkElement> _sizeChangedListeningControls;
 		private SizeChangedEventHandler _sizeChangedHandler;
+		private Point _prevPoint;
 
 		#endregion fields
 
@@ -325,7 +323,6 @@ namespace AvalonDock.Controls
 
 			_resizer.DragStarted += OnResizerDragStarted;
 			_resizer.DragDelta += OnResizerDragDelta;
-			_resizer.DragCompleted += OnResizerDragCompleted;
 
 			switch (_side)
 			{
@@ -378,84 +375,27 @@ namespace AvalonDock.Controls
 		{
 			_resizer.DragStarted -= OnResizerDragStarted;
 			_resizer.DragDelta -= OnResizerDragDelta;
-			_resizer.DragCompleted -= OnResizerDragCompleted;
 			_internalHostPresenter.Content = null;
 		}
 
-		private void ShowResizerOverlayWindow(LayoutGridResizerControl splitter)
+		private void OnResizerDragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
 		{
-			_resizerGhost = new Border { Background = splitter.BackgroundWhileDragging, Opacity = splitter.OpacityWhileDragging };
-			var areaElement = _manager.GetAutoHideAreaElement();
-			//var modelControlActualSize = this._internalHost.TransformActualSizeToAncestor();
-			var ptTopLeftScreen = areaElement.PointToScreenDPIWithoutFlowDirection(new Point());
-			var managerSize = areaElement.TransformActualSizeToAncestor();
-			Size windowSize;
-
-			if (_side == AnchorSide.Right || _side == AnchorSide.Left)
-			{
-				windowSize = new Size(managerSize.Width - 25.0 + splitter.ActualWidth, managerSize.Height);
-				_resizerGhost.Width = splitter.ActualWidth;
-				_resizerGhost.Height = windowSize.Height;
-				ptTopLeftScreen.Offset(25, 0.0);
-			}
-			else
-			{
-				windowSize = new Size(managerSize.Width, managerSize.Height - _model.AutoHideMinHeight - 25.0 + splitter.ActualHeight);
-				_resizerGhost.Height = splitter.ActualHeight;
-				_resizerGhost.Width = windowSize.Width;
-				ptTopLeftScreen.Offset(0.0, 25.0);
-			}
-			_initialStartPoint = splitter.PointToScreenDPIWithoutFlowDirection(new Point()) - ptTopLeftScreen;
-
-			if (_side == AnchorSide.Right || _side == AnchorSide.Left)
-				Canvas.SetLeft(_resizerGhost, _initialStartPoint.X);
-			else
-				Canvas.SetTop(_resizerGhost, _initialStartPoint.Y);
-
-			var panelHostResizer = new Canvas { HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Stretch };
-			panelHostResizer.Children.Add(_resizerGhost);
-			_resizerWindowHost = new Window
-			{
-				Style = new Style(typeof(Window), null),
-				ResizeMode = ResizeMode.NoResize,
-				WindowStyle = WindowStyle.None,
-				ShowInTaskbar = false,
-				AllowsTransparency = true,
-				Background = null,
-				Width = windowSize.Width,
-				Height = windowSize.Height,
-				Left = ptTopLeftScreen.X,
-				Top = ptTopLeftScreen.Y,
-				ShowActivated = false,
-				Owner = Window.GetWindow(this),
-				Content = panelHostResizer
-			};
-
-			_resizerWindowHost.Show();
+			IsResizing = true;
+			var window = Window.GetWindow(this);
+			_prevPoint = Mouse.GetPosition(window);
 		}
 
-		private void HideResizerOverlayWindow()
+		private void OnResizerDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
 		{
-			if (_resizerWindowHost == null) return;
-			_resizerWindowHost.Close();
-			_resizerWindowHost = null;
-		}
-
-		private void OnResizerDragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
-		{
-			//var splitter = sender as LayoutGridResizerControl;
-			var rootVisual = this.FindVisualTreeRoot() as Visual;
-
-			var trToWnd = TransformToAncestor(rootVisual);
-			//var transformedDelta = trToWnd.Transform(new Point(e.HorizontalChange, e.VerticalChange)) - trToWnd.Transform(new Point());
-
-			var deltaPoint = ChildLayoutTransform.Inverse.Transform(new Point(Canvas.GetLeft(_resizerGhost) - _initialStartPoint.X, Canvas.GetTop(_resizerGhost) - _initialStartPoint.Y));
+			var window = Window.GetWindow(this);
+			var currentPoint = Mouse.GetPosition(window);
 
 			double delta;
 			if (_side == AnchorSide.Right || _side == AnchorSide.Left)
-				delta = deltaPoint.X;
+				delta = currentPoint.X - _prevPoint.X;
 			else
-				delta = deltaPoint.Y;
+				delta = currentPoint.Y - _prevPoint.Y;
+			_prevPoint = currentPoint;
 
 			switch (_side)
 			{
@@ -488,36 +428,10 @@ namespace AvalonDock.Controls
 						break;
 					}
 			}
-			HideResizerOverlayWindow();
 			IsResizing = false;
 			InvalidateMeasure();
-		}
 
-		private void OnResizerDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-		{
-			//var splitter = sender as LayoutGridResizerControl;
-			var rootVisual = this.FindVisualTreeRoot() as Visual;
 
-			var trToWnd = TransformToAncestor(rootVisual);
-			var transformedDelta = trToWnd.Transform(new Point(e.HorizontalChange, e.VerticalChange)) - trToWnd.Transform(new Point());
-			if (ChildLayoutTransform is Transform transform && !transform.Value.IsIdentity)
-			{
-				transformedDelta = transform.Transform(new Point() + transformedDelta) - new Point();
-			}
-
-			if (_side == AnchorSide.Right || _side == AnchorSide.Left)
-			{
-				if (GetFlowDirection(_internalHost) == FlowDirection.RightToLeft) transformedDelta.X = -transformedDelta.X;
-				Canvas.SetLeft(_resizerGhost, MathHelper.MinMax(_initialStartPoint.X + transformedDelta.X, 0.0, _resizerWindowHost.Width - _resizerGhost.Width));
-			}
-			else
-				Canvas.SetTop(_resizerGhost, MathHelper.MinMax(_initialStartPoint.Y + transformedDelta.Y, 0.0, _resizerWindowHost.Height - _resizerGhost.Height));
-		}
-
-		private void OnResizerDragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
-		{
-			ShowResizerOverlayWindow(sender as LayoutGridResizerControl);
-			IsResizing = true;
 		}
 
 		#endregion Private Methods
