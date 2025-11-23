@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace AvalonDock.Controls
@@ -94,7 +95,9 @@ namespace AvalonDock.Controls
 				_isDrag = true;
 			}
 
-			var newHost = _overlayWindowHosts.FirstOrDefault(oh => oh.HitTestScreen(dragPosition));
+			IOverlayWindowHost newHost = null;
+			if(Keyboard.Modifiers == ModifierKeys.None) 
+				newHost = _overlayWindowHosts.FirstOrDefault(oh => oh.HitTestScreen(dragPosition));
 
 			if (_currentHost != null || _currentHost != newHost)
 			{
