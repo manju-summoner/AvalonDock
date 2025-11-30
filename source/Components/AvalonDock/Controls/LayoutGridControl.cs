@@ -391,6 +391,7 @@ namespace AvalonDock.Controls
 					nextChildModel.DockHeight = new GridLength(double.IsNaN(resizedHeight) ? height : resizedHeight, GridUnitType.Pixel);
 				}
 			}
+			AdjustFixedChildrenPanelSizes();
 		}
 
 		public virtual void AdjustFixedChildrenPanelSizes(Size? parentSize = null)
