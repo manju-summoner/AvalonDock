@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -150,7 +150,7 @@ namespace AvalonDock.Controls
 		{
 			_isMouseDown = false;
 			base.OnMouseLeftButtonUp(e);
-			if (Model != null) Model.IsActive = true;//FocusElementManager.SetFocusOnLastElement(Model);
+			Model?.IsActive = true;//FocusElementManager.SetFocusOnLastElement(Model);
 		}
 
 		#endregion Overrides

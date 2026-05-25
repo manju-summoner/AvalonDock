@@ -175,7 +175,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="CanHide"/> property.</summary>
 		protected virtual void OnCanHideChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (_anchorable != null) _anchorable.CanHide = (bool)e.NewValue;
+			_anchorable?.CanHide = (bool)e.NewValue;
 		}
 
 		#endregion CanHide
@@ -200,7 +200,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="CanMove"/> property.</summary>
 		protected virtual void OnCanMoveChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (_anchorable != null) _anchorable.CanMove = (bool)e.NewValue;
+			_anchorable?.CanMove = (bool)e.NewValue;
 		}
 
 		#endregion CanMove
@@ -225,7 +225,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="CanDockAsTabbedDocument"/> property.</summary>
 		protected virtual void OnCanDockAsTabbedDocumentChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (_anchorable != null) _anchorable.CanDockAsTabbedDocument = (bool)e.NewValue;
+			_anchorable?.CanDockAsTabbedDocument = (bool)e.NewValue;
 		}
 		#endregion CanDockAsTabbedDocument
 

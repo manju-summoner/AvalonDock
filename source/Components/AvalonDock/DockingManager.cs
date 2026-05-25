@@ -1928,10 +1928,7 @@ namespace AvalonDock
 			// Activate the document determined to be the next active document.
 			// This doesn't only update the layout, but also all related (dependency) properties.
 			//
-			if (documentToActivate != null)
-			{
-				documentToActivate.IsActive = true;
-			}
+			documentToActivate?.IsActive = true;
 		}
 
 		private LayoutDocument GetDocumentToActivate(LayoutDocument previousDocument)

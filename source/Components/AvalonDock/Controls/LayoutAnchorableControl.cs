@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -113,8 +113,7 @@ namespace AvalonDock.Controls
 		/// <inheritdoc/>
 		protected override void OnGotKeyboardFocus(System.Windows.Input.KeyboardFocusChangedEventArgs e)
 		{
-			if (Model != null)
-				Model.IsActive = true;
+			Model?.IsActive = true;
 			base.OnGotKeyboardFocus(e);
 		}
 
@@ -126,8 +125,7 @@ namespace AvalonDock.Controls
 		private void LayoutAnchorableControl_Unloaded(object sender, RoutedEventArgs e)
 		{
 			// prevent memory leak via event handler
-			if (Model != null)
-				Model.PropertyChanged -= Model_PropertyChanged;
+			Model?.PropertyChanged -= Model_PropertyChanged;
 
 			Unloaded -= LayoutAnchorableControl_Unloaded;
 		}

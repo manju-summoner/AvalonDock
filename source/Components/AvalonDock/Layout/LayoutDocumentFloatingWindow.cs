@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -43,11 +43,11 @@ namespace AvalonDock.Layout
 			set
 			{
 				if (_rootPanel == value) return;
-				if (_rootPanel != null) _rootPanel.ChildrenTreeChanged -= _rootPanel_ChildrenTreeChanged;
+				_rootPanel?.ChildrenTreeChanged -= _rootPanel_ChildrenTreeChanged;
 
 				_rootPanel = value;
-				if (_rootPanel != null) _rootPanel.Parent = this;
-				if (_rootPanel != null) _rootPanel.ChildrenTreeChanged += _rootPanel_ChildrenTreeChanged;
+				_rootPanel?.Parent = this;
+				_rootPanel?.ChildrenTreeChanged += _rootPanel_ChildrenTreeChanged;
 
 				RaisePropertyChanged(nameof(RootPanel));
 				RaisePropertyChanged(nameof(IsSinglePane));

@@ -125,7 +125,7 @@ namespace AvalonDock.Layout
 				if (_topSide == value) return;
 				RaisePropertyChanging(nameof(TopSide));
 				_topSide = value;
-				if (_topSide != null) _topSide.Parent = this;
+				_topSide?.Parent = this;
 				RaisePropertyChanged(nameof(TopSide));
 			}
 		}
@@ -139,7 +139,7 @@ namespace AvalonDock.Layout
 				if (_rightSide == value) return;
 				RaisePropertyChanging(nameof(RightSide));
 				_rightSide = value;
-				if (_rightSide != null) _rightSide.Parent = this;
+				_rightSide?.Parent = this;
 				RaisePropertyChanged(nameof(RightSide));
 			}
 		}
@@ -153,7 +153,7 @@ namespace AvalonDock.Layout
 				if (value == _leftSide) return;
 				RaisePropertyChanging(nameof(LeftSide));
 				_leftSide = value;
-				if (_leftSide != null) _leftSide.Parent = this;
+				_leftSide?.Parent = this;
 				RaisePropertyChanged(nameof(LeftSide));
 			}
 		}
@@ -167,7 +167,7 @@ namespace AvalonDock.Layout
 				if (value == _bottomSide) return;
 				RaisePropertyChanging(nameof(BottomSide));
 				_bottomSide = value;
-				if (_bottomSide != null) _bottomSide.Parent = this;
+				_bottomSide?.Parent = this;
 				RaisePropertyChanged(nameof(BottomSide));
 			}
 		}
@@ -265,10 +265,10 @@ namespace AvalonDock.Layout
 				if (currentValue != value)
 				{
 					RaisePropertyChanging(nameof(LastFocusedDocument));
-					if (currentValue != null) currentValue.IsLastFocusedDocument = false;
+					currentValue?.IsLastFocusedDocument = false;
 					_lastFocusedDocument = new WeakReference(value);
 					currentValue = LastFocusedDocument;
-					if (currentValue != null) currentValue.IsLastFocusedDocument = true;
+					currentValue?.IsLastFocusedDocument = true;
 					RaisePropertyChanged(nameof(LastFocusedDocument));
 				}
 			}

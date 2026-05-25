@@ -158,8 +158,7 @@ namespace AvalonDock.Controls
 
 		private static void Current_Exit(object sender, ExitEventArgs e)
 		{
-			if (Application.Current != null)
-				Application.Current.Exit -= new ExitEventHandler(Current_Exit);
+			Application.Current?.Exit -= new ExitEventHandler(Current_Exit);
 
 			if (_windowHandler != null)
 			{
@@ -205,8 +204,7 @@ namespace AvalonDock.Controls
 					if (parentAnchorable != null)
 					{
 						_modelFocusedWindowHandle[parentAnchorable.Model] = e.GotFocusWinHandle;
-						if (parentAnchorable.Model != null)
-							parentAnchorable.Model.IsActive = true;
+						parentAnchorable.Model?.IsActive = true;
 					}
 					else
 					{
@@ -214,8 +212,7 @@ namespace AvalonDock.Controls
 						if (parentDocument != null)
 						{
 							_modelFocusedWindowHandle[parentDocument.Model] = e.GotFocusWinHandle;
-							if (parentDocument.Model != null)
-								parentDocument.Model.IsActive = true;
+							parentDocument.Model?.IsActive = true;
 						}
 					}
 				}

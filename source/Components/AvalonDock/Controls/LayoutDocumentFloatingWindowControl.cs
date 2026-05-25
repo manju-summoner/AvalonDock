@@ -177,11 +177,9 @@ namespace AvalonDock.Controls
 				root.Manager.RemoveFloatingWindow(this);
 				root.CollectGarbage();
 			}
-			if (_overlayWindow != null)
-			{
-				_overlayWindow.Close();
-				_overlayWindow = null;
-			}
+
+			_overlayWindow?.Close();
+			_overlayWindow = null;
 			base.OnClosed(e);
 			if (!CloseInitiatedByUser) root?.FloatingWindows.Remove(_model);
 			_model.PropertyChanged -= Model_PropertyChanged;

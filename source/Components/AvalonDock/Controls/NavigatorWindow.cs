@@ -213,15 +213,9 @@ namespace AvalonDock.Controls
 			_anchorableListBox = GetTemplateChild(PART_AnchorableListBox) as ListBox;
 			_documentListBox = GetTemplateChild(PART_DocumentListBox) as ListBox;
 
-			if (_anchorableListBox != null)
-			{
-				_anchorableListBox.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
-			}
+			_anchorableListBox?.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
 
-			if (_documentListBox != null)
-			{
-				_documentListBox.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
-			}
+			_documentListBox?.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
 		}
 
 		private void ItemContainerGenerator_StatusChanged(object sender, EventArgs e)

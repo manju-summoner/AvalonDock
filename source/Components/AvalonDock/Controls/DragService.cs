@@ -117,8 +117,7 @@ namespace AvalonDock.Controls
 					_currentWindowAreas.Clear();
 
 					//hide current overlay window
-					if (_currentWindow != null)
-						_currentWindow.DragLeave(_floatingWindow);
+					_currentWindow?.DragLeave(_floatingWindow);
 					if (_currentHost != null)
 					{
 						_currentHost.HideOverlayWindow();
@@ -228,8 +227,7 @@ namespace AvalonDock.Controls
 			var floatingWindowModel = _floatingWindow.Model as LayoutFloatingWindow;
 			var root = floatingWindowModel.Root;
 
-			if (_currentHost != null)
-				_currentHost.HideOverlayWindow();
+			_currentHost?.HideOverlayWindow();
 
 			if (_currentDropTarget != null)
 			{
@@ -243,8 +241,7 @@ namespace AvalonDock.Controls
 			if (_currentDropTarget != null)
 				_currentWindow.DragLeave(_currentDropTarget);
 
-			if (_currentWindow != null)
-				_currentWindow.DragLeave(_floatingWindow);
+			_currentWindow?.DragLeave(_floatingWindow);
 
 			_currentWindow = null;
 			_currentHost = null;
@@ -265,13 +262,11 @@ namespace AvalonDock.Controls
 			if (_currentDropTarget != null)
 				_currentWindow.DragLeave(_currentDropTarget);
 
-			if (_currentWindow != null)
-				_currentWindow.DragLeave(_floatingWindow);
+			_currentWindow?.DragLeave(_floatingWindow);
 
 			_currentWindow = null;
 
-			if (_currentHost != null)
-				_currentHost.HideOverlayWindow();
+			_currentHost?.HideOverlayWindow();
 
 			_currentHost = null;
 		}

@@ -762,7 +762,7 @@ namespace AvalonDock.Controls
 			/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="Content"/> property.</summary>
 			protected virtual void OnContentChanged(UIElement oldValue, UIElement newValue)
 			{
-				if (_rootPresenter != null) _rootPresenter.Child = Content;
+				_rootPresenter?.Child = Content;
 				if (oldValue is FrameworkElement oldContent) oldContent.SizeChanged -= Content_SizeChanged;
 				if (newValue is FrameworkElement newContent) newContent.SizeChanged += Content_SizeChanged;
 			}
@@ -788,7 +788,7 @@ namespace AvalonDock.Controls
 			/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="SizeToContent"/> property.</summary>
 			protected virtual void OnSizeToContentChanged(SizeToContent oldValue, SizeToContent newValue)
 			{
-				if (_wpfContentHost != null) _wpfContentHost.SizeToContent = newValue;
+				_wpfContentHost?.SizeToContent = newValue;
 			}
 
 			#endregion SizeToContent

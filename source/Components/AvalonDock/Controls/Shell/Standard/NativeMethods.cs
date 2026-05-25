@@ -1439,7 +1439,7 @@ namespace Standard
 			}
 			finally
 			{
-				if (dc != null) dc._created = true;
+				dc?._created = true;
 			}
 			if (!dc.IsInvalid) return dc;
 			dc.Dispose();
@@ -1459,7 +1459,7 @@ namespace Standard
 			}
 			finally
 			{
-				if (dc != null) dc._created = true;
+				dc?._created = true;
 			}
 			if (!dc.IsInvalid) return dc;
 			dc.Dispose();
@@ -1475,7 +1475,7 @@ namespace Standard
 			}
 			finally
 			{
-				if (dc != null) dc.Hwnd = hwnd;
+				dc?.Hwnd = hwnd;
 			}
 
 			// GetDC does not set the last error...

@@ -113,7 +113,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="Title"/> property.</summary>
 		protected virtual void OnTitleChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (LayoutElement != null) LayoutElement.Title = (string)e.NewValue;
+			LayoutElement?.Title = (string)e.NewValue;
 		}
 
 		#endregion Title
@@ -138,7 +138,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="IconSource"/> property.</summary>
 		protected virtual void OnIconSourceChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (LayoutElement != null) LayoutElement.IconSource = IconSource;
+			LayoutElement?.IconSource = IconSource;
 		}
 
 		#endregion IconSource
@@ -163,7 +163,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="ContentId"/> property.</summary>
 		protected virtual void OnContentIdChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (LayoutElement != null) LayoutElement.ContentId = (string)e.NewValue;
+			LayoutElement?.ContentId = (string)e.NewValue;
 		}
 
 		#endregion ContentId
@@ -191,7 +191,7 @@ namespace AvalonDock.Controls
 			if (!_isSelectedReentrantFlag.CanEnter) return;
 			using (_isSelectedReentrantFlag.Enter())
 			{
-				if (LayoutElement != null) LayoutElement.IsSelected = (bool)e.NewValue;
+				LayoutElement?.IsSelected = (bool)e.NewValue;
 			}
 		}
 
@@ -220,7 +220,7 @@ namespace AvalonDock.Controls
 			if (!_isActiveReentrantFlag.CanEnter) return;
 			using (_isActiveReentrantFlag.Enter())
 			{
-				if (LayoutElement != null) LayoutElement.IsActive = (bool)e.NewValue;
+				LayoutElement?.IsActive = (bool)e.NewValue;
 			}
 		}
 
@@ -246,7 +246,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="CanClose"/> property.</summary>
 		protected virtual void OnCanCloseChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (LayoutElement != null) LayoutElement.CanClose = (bool)e.NewValue;
+			LayoutElement?.CanClose = (bool)e.NewValue;
 		}
 
 		#endregion CanClose
@@ -271,7 +271,7 @@ namespace AvalonDock.Controls
 		/// <summary>Provides derived classes an opportunity to handle changes to the <see cref="CanFloat"/> property.</summary>
 		protected virtual void OnCanFloatChanged(DependencyPropertyChangedEventArgs e)
 		{
-			if (LayoutElement != null) LayoutElement.CanFloat = (bool)e.NewValue;
+			LayoutElement?.CanFloat = (bool)e.NewValue;
 		}
 
 		#endregion CanFloat
@@ -830,7 +830,7 @@ namespace AvalonDock.Controls
 
 		private void OnToolTipChanged()
 		{
-			if (LayoutElement != null) LayoutElement.ToolTip = ToolTip;
+			LayoutElement?.ToolTip = ToolTip;
 		}
 
 		private static void OnVisibilityChanged(DependencyObject s, DependencyPropertyChangedEventArgs e) => ((LayoutItem)s).OnVisibilityChanged();

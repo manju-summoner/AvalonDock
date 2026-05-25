@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -46,8 +46,7 @@ namespace AvalonDock.Layout
 		{
 			OnChildrenTreeChanged(ChildrenTreeChange.DirectChildrenChanged);
 			var parentGroup = Parent as LayoutGroupBase;
-			if (parentGroup != null)
-				parentGroup.RaiseChildrenTreeChanged();
+			parentGroup?.RaiseChildrenTreeChanged();
 		}
 
 		/// <summary>Raise an event to inform supscribers that the children collection down the tree of this object has changed.</summary>
@@ -69,8 +68,7 @@ namespace AvalonDock.Layout
 		{
 			OnChildrenTreeChanged(change);
 			var parentGroup = Parent as LayoutGroupBase;
-			if (parentGroup != null)
-				parentGroup.NotifyChildrenTreeChanged(ChildrenTreeChange.TreeChanged);
+			parentGroup?.NotifyChildrenTreeChanged(ChildrenTreeChange.TreeChanged);
 		}
 
 		#endregion Internal Methods

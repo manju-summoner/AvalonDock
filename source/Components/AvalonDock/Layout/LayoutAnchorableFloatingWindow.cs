@@ -64,7 +64,7 @@ namespace AvalonDock.Layout
 			{
 				if (value == _rootPanel) return;
 				RaisePropertyChanging(nameof(RootPanel));
-				if (_rootPanel != null) _rootPanel.ChildrenTreeChanged -= _rootPanel_ChildrenTreeChanged;
+				_rootPanel?.ChildrenTreeChanged -= _rootPanel_ChildrenTreeChanged;
 				_rootPanel = value;
 				if (_rootPanel != null)
 				{

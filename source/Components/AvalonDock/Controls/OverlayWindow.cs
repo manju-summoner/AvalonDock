@@ -128,8 +128,7 @@ namespace AvalonDock.Controls
 			_gridDockingManagerDropTargets.Visibility = System.Windows.Visibility.Hidden;
 			_gridAnchorablePaneDropTargets.Visibility = System.Windows.Visibility.Hidden;
 			_gridDocumentPaneDropTargets.Visibility = System.Windows.Visibility.Hidden;
-			if (_gridDocumentPaneFullDropTargets != null)
-				_gridDocumentPaneFullDropTargets.Visibility = System.Windows.Visibility.Hidden;
+			_gridDocumentPaneFullDropTargets?.Visibility = System.Windows.Visibility.Hidden;
 
 			_dockingManagerDropTargetBottom = GetTemplateChild("PART_DockingManagerDropTargetBottom") as FrameworkElement;
 			_dockingManagerDropTargetTop = GetTemplateChild("PART_DockingManagerDropTargetTop") as FrameworkElement;
@@ -210,14 +209,12 @@ namespace AvalonDock.Controls
 
 		internal void EnableDropTargets()
 		{
-			if (_mainCanvasPanel != null)
-				_mainCanvasPanel.Visibility = System.Windows.Visibility.Visible;
+			_mainCanvasPanel?.Visibility = System.Windows.Visibility.Visible;
 		}
 
 		internal void HideDropTargets()
 		{
-			if (_mainCanvasPanel != null)
-				_mainCanvasPanel.Visibility = System.Windows.Visibility.Hidden;
+			_mainCanvasPanel?.Visibility = System.Windows.Visibility.Hidden;
 		}
 
 		#endregion Internal Methods

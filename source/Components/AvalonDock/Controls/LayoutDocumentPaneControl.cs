@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
    AvalonDock
 
    Copyright (C) 2007-2013 Xceed Software Inc.
@@ -77,8 +77,7 @@ namespace AvalonDock.Controls
 		protected override void OnSelectionChanged(SelectionChangedEventArgs e)
 		{
 			base.OnSelectionChanged(e);
-			if (_model.SelectedContent != null)
-				_model.SelectedContent.IsActive = true;
+			_model.SelectedContent?.IsActive = true;
 		}
 
 		/// <summary>
@@ -122,7 +121,7 @@ namespace AvalonDock.Controls
 						layoutContent.TabItem.ContextMenu = null;
 						layoutContent.TabItem.Content = null;
 						var panel = layoutContent.TabItem.FindVisualAncestor<Panel>();
-						if (panel != null) panel.Children.Remove(layoutContent.TabItem);
+						panel?.Children.Remove(layoutContent.TabItem);
 						layoutContent.TabItem = null;
 					}
 				}
