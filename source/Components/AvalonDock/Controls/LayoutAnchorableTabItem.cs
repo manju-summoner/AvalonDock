@@ -159,6 +159,21 @@ namespace AvalonDock.Controls
 		}
 
 		/// <inheritdoc />
+		protected override void OnMouseDown(MouseButtonEventArgs e)
+		{
+			// 中クリックで✕ボタンと同じ操作を行う（閉じられる場合は閉じ、そうでなければ隠す）
+			if (e.ChangedButton == MouseButton.Middle && LayoutItem != null)
+			{
+				if (LayoutItem.CloseCommand.CanExecute(null))
+					LayoutItem.CloseCommand.Execute(null);
+				else if (LayoutItem is LayoutAnchorableItem anchorableItem && anchorableItem.HideCommand.CanExecute(null))
+					anchorableItem.HideCommand.Execute(null);
+			}
+
+			base.OnMouseDown(e);
+		}
+
+		/// <inheritdoc />
 		protected override void OnMouseEnter(MouseEventArgs e)
 		{
 			base.OnMouseEnter(e);

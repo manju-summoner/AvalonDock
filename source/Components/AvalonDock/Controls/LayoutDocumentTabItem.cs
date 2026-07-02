@@ -195,9 +195,13 @@ namespace AvalonDock.Controls
 		{
 			if (!IsLoaded) return;
 
-			if (LayoutItem != null && e.ChangedButton == MouseButton.Middle && LayoutItem.CloseCommand.CanExecute(null))
+			// 中クリックで✕ボタンと同じ操作を行う（閉じられないLayoutAnchorableは隠す）
+			if (e.ChangedButton == MouseButton.Middle && LayoutItem != null)
 			{
-				LayoutItem.CloseCommand.Execute(null);
+				if (LayoutItem.CloseCommand.CanExecute(null))
+					LayoutItem.CloseCommand.Execute(null);
+				else if (LayoutItem is LayoutAnchorableItem anchorableItem && anchorableItem.HideCommand.CanExecute(null))
+					anchorableItem.HideCommand.Execute(null);
 			}
 
 			base.OnMouseDown(e);
