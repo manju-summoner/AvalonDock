@@ -7,7 +7,6 @@
    License (Ms-PL) as published at https://opensource.org/licenses/MS-PL
  ************************************************************************/
 
-using AvalonDock.Layout;
 using System;
 using System.Linq;
 using System.Windows;
@@ -48,44 +47,29 @@ namespace AvalonDock.Controls
 			return new Size(Math.Min(desideredSize.Width, availableSize.Width), desideredSize.Height);
 		}
 
+		/// <remarks>
+		/// YMM4独自の変更。上流の実装（幅に収まらないタブをHiddenにする）に戻さないこと。
+		/// YMM4のタブヘッダーは横スクロール可能なScrollViewerの中にあるため
+		/// （フローティングウィンドウ内も含め、DocumentPaneControlStyleは常にこのテンプレートが適用される）、
+		/// 収まらないタブもスクロールすれば到達でき、隠す必要がない。
+		/// 隠す実装には、
+		/// ・幅の判定に余裕がなく（正常時の超過量はちょうど0）、offsetの累積(ActualWidth+Margin)が
+		/// 　タブ幅の合計をわずかでも超えると右端のタブが隠れてしまう
+		/// 　（負のマージンやレイアウトの丸めが絡むと、両者はビット単位では一致しない）
+		/// ・VisibilityのVisible⇔Hiddenの変更ではレイアウトが再実行されず、再実行されても
+		/// 　MeasureOverrideがHiddenの子も合計に含めるため同じ判定になるので、
+		/// 　一度隠すとタブが増減するまで空白のタブとして残り続ける
+		/// という問題があった。
+		/// </remarks>
 		protected override Size ArrangeOverride(Size finalSize)
 		{
 			var visibleChildren = Children.Cast<UIElement>().Where(ch => ch.Visibility != System.Windows.Visibility.Collapsed);
 			var offset = 0.0;
-			var skipAllOthers = false;
+
 			foreach (TabItem doc in visibleChildren)
 			{
-				if (skipAllOthers || offset + doc.DesiredSize.Width > finalSize.Width)
-				{
-					bool isLayoutContentSelected = false;
-					var layoutContent = doc.Content as LayoutContent;
-
-					if (layoutContent != null)
-						isLayoutContentSelected = layoutContent.IsSelected;
-
-					if (isLayoutContentSelected && !doc.IsVisible)
-					{
-						var parentContainer = layoutContent.Parent as ILayoutContainer;
-						var parentSelector = layoutContent.Parent as ILayoutContentSelector;
-						var parentPane = layoutContent.Parent as ILayoutPane;
-						int contentIndex = parentSelector.IndexOf(layoutContent);
-						if (contentIndex > 0 &&
-							parentContainer.ChildrenCount > 1)
-						{
-							parentPane.MoveChild(contentIndex, 0);
-							parentSelector.SelectedContentIndex = 0;
-							return ArrangeOverride(finalSize);
-						}
-					}
-					doc.Visibility = System.Windows.Visibility.Hidden;
-					skipAllOthers = true;
-				}
-				else
-				{
-					doc.Visibility = System.Windows.Visibility.Visible;
-					doc.Arrange(new Rect(offset, 0.0, doc.DesiredSize.Width, finalSize.Height));
-					offset += doc.ActualWidth + doc.Margin.Left + doc.Margin.Right;
-				}
+				doc.Arrange(new Rect(offset, 0.0, doc.DesiredSize.Width, finalSize.Height));
+				offset += doc.ActualWidth + doc.Margin.Left + doc.Margin.Right;
 			}
 			return finalSize;
 		}
