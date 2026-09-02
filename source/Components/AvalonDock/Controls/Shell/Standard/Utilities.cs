@@ -69,11 +69,13 @@ namespace Standard
 		/// <returns>A Color representation of the parameter.</returns>
 		public static Color ColorFromArgbDword(uint color) => Color.FromArgb((byte)((color & 0xFF000000) >> 24), (byte)((color & 0x00FF0000) >> 16), (byte)((color & 0x0000FF00) >> 8), (byte)((color & 0x000000FF) >> 0));
 
+		// プライマリモニターより上のモニターでは Y 座標が負になり、x64 では lParam の上位32bitがゼロのまま届くことがある。
+		// 座標は下位32bitにしか入っていないので、両関数とも上位32bitを切り捨ててから分解する。
 		[SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-		public static int GET_X_LPARAM(IntPtr lParam) => LOWORD(lParam.ToInt32());
+		public static int GET_X_LPARAM(IntPtr lParam) => LOWORD(unchecked((int)lParam.ToInt64()));
 
 		[SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-		public static int GET_Y_LPARAM(IntPtr lParam) => HIWORD(lParam.ToInt32());
+		public static int GET_Y_LPARAM(IntPtr lParam) => HIWORD(unchecked((int)lParam.ToInt64()));
 
 		[SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
 		public static int HIWORD(int i) => (short)(i >> 16);
