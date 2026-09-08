@@ -27,8 +27,9 @@ namespace Microsoft.Windows.Shell
 	{
 		private delegate void _SystemMetricUpdate(IntPtr wParam, IntPtr lParam);
 
+		// WindowChrome を作るたびに隠しウィンドウが増えないよう、スレッドごとに1つだけ作ってキャッシュする
 		[ThreadStatic]
-		private static readonly SystemParameters2 _threadLocalSingleton;
+		private static SystemParameters2 _threadLocalSingleton;
 
 		private MessageWindow _messageHwnd;
 
@@ -165,7 +166,10 @@ namespace Microsoft.Windows.Shell
 				Marshal.StructureToPtr(tbix, lParam, false);
 				// This might flash a window in the taskbar while being calculated.
 				// WM_GETTITLEBARINFOEX doesn't work correctly unless the window is visible while processing.
-				NativeMethods.ShowWindow(_messageHwnd.Handle, SW.SHOW);
+				// SW_SHOW だと隠しウィンドウがアクティブになり、メインウィンドウから一瞬アクティブ状態を奪う
+				// （タイトルバーが点滅し、メニューや IME の変換候補が閉じる）。
+				// 測定には表示されていれば十分なので、アクティブにしない表示を使う。
+				NativeMethods.ShowWindow(_messageHwnd.Handle, SW.SHOWNOACTIVATE);
 				NativeMethods.SendMessage(_messageHwnd.Handle, WM.GETTITLEBARINFOEX, IntPtr.Zero, lParam);
 				tbix = (TITLEBARINFOEX)Marshal.PtrToStructure(lParam, typeof(TITLEBARINFOEX));
 			}
@@ -191,11 +195,6 @@ namespace Microsoft.Windows.Shell
 				rcAllCaptionButtons.Height);
 			var logicalCaptionLocation = DpiHelper.DeviceRectToLogical(deviceCaptionLocation);
 			WindowCaptionButtonsLocation = logicalCaptionLocation;
-		}
-
-		private void _UpdateCaptionButtonLocation(IntPtr wParam, IntPtr lParam)
-		{
-			_InitializeCaptionButtonLocation();
 		}
 
 		private void _InitializeHighContrast()
@@ -309,6 +308,8 @@ namespace Microsoft.Windows.Shell
 			// WindowCornerRadius isn't exposed by true system parameters, so it requires the theme to be initialized first.
 			_InitializeWindowCornerRadius();
 
+			// キャプションボタンの位置（WindowCaptionButtonsLocation）は通知のたびに測り直さない。測定には隠しウィンドウの一時表示が要り、
+			// WindowChrome も YMM4 も値を参照していないので、通知経路で窓を表示する理由がない
 			_UpdateTable = new Dictionary<WM, List<_SystemMetricUpdate>>
 			{
 				{ WM.THEMECHANGED,
@@ -316,8 +317,7 @@ namespace Microsoft.Windows.Shell
 					{
 						_UpdateThemeInfo,
 						_UpdateHighContrast,
-						_UpdateWindowCornerRadius,
-						_UpdateCaptionButtonLocation, } },
+						_UpdateWindowCornerRadius, } },
 				{ WM.SETTINGCHANGE,
 					new List<_SystemMetricUpdate>
 					{
@@ -325,15 +325,14 @@ namespace Microsoft.Windows.Shell
 						_UpdateWindowResizeBorderThickness,
 						_UpdateSmallIconSize,
 						_UpdateHighContrast,
-						_UpdateWindowNonClientFrameThickness,
-						_UpdateCaptionButtonLocation, } },
+						_UpdateWindowNonClientFrameThickness, } },
 				{ WM.DWMNCRENDERINGCHANGED, new List<_SystemMetricUpdate> { _UpdateIsGlassEnabled } },
 				{ WM.DWMCOMPOSITIONCHANGED, new List<_SystemMetricUpdate> { _UpdateIsGlassEnabled } },
 				{ WM.DWMCOLORIZATIONCOLORCHANGED, new List<_SystemMetricUpdate> { _UpdateGlassColor } },
 			};
 		}
 
-		public static SystemParameters2 Current => _threadLocalSingleton ?? new SystemParameters2();
+		public static SystemParameters2 Current => _threadLocalSingleton ??= new SystemParameters2();
 
 		private IntPtr _WndProc(IntPtr hwnd, WM msg, IntPtr wParam, IntPtr lParam)
 		{
@@ -475,6 +474,7 @@ namespace Microsoft.Windows.Shell
 			}
 		}
 
+		// 生成時に1回だけ測定し、以後は更新しない（測定には隠しウィンドウの一時表示が要る）
 		public Rect WindowCaptionButtonsLocation
 		{
 			get => _captionButtonLocation;
