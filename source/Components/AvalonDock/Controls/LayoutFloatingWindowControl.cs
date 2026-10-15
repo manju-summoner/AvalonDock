@@ -47,6 +47,8 @@ namespace AvalonDock.Controls
 		private DragService _dragService = null;
 		private bool _internalCloseFlag = false;
 		private bool _isClosing = false;
+		private bool _toolWindowStyleAddedForHide = false;
+		private bool _hidingForParentClosing = false;
 
 		/// <summary>
 		/// Is false until the margins have been found once.
@@ -397,8 +399,63 @@ namespace AvalonDock.Controls
 					var command = (int)wParam & 0xFFF0;
 					if (command == Win32Helper.SC_MAXIMIZE || command == Win32Helper.SC_RESTORE) UpdateMaximizedState(command == Win32Helper.SC_MAXIMIZE);
 					break;
+
+				case Win32Helper.WM_SHOWWINDOW:
+					if (wParam != IntPtr.Zero)
+					{
+						_hidingForParentClosing = false;
+						RemoveToolWindowStyleAddedForHide(hwnd);
+					}
+					else if (lParam == new IntPtr(Win32Helper.SW_PARENTCLOSING))
+					{
+						// 所有者の最小化で隠れる窓は所有者の復元で再び表示されるので、プレビューに写っていても正しい。
+						// この経路では既定の処理の中で lParam が 0 の WM_SHOWWINDOW が続けて届くため、隠し終わるまで拡張スタイルに触れない
+						_hidingForParentClosing = true;
+					}
+					else if (lParam == IntPtr.Zero && !_hidingForParentClosing)
+					{
+						AddToolWindowStyleForHide(hwnd);
+					}
+					break;
+
+				case Win32Helper.WM_WINDOWPOSCHANGED:
+					if (_toolWindowStyleAddedForHide || _hidingForParentClosing)
+					{
+						var flags = ((Win32Helper.WINDOWPOS)Marshal.PtrToStructure(lParam, typeof(Win32Helper.WINDOWPOS))).Flags;
+						if ((flags & (int)Win32Helper.SetWindowPosFlags.HideWindow) != 0)
+						{
+							_hidingForParentClosing = false;
+							RemoveToolWindowStyleAddedForHide(hwnd);
+						}
+					}
+					break;
 			}
 			return IntPtr.Zero;
+		}
+
+		/// <summary>
+		/// Windows のタスクバーのサムネイルとライブプレビューには、隠しただけの（破棄していない）WS_DLGFRAME を持つ所有ウィンドウが
+		/// 隠した後も写り続ける不具合がある（環境によって起きる。Notepad++ issue #15690 と同じ現象）。
+		/// フローティングウィンドウは閉じても隠すだけなので、隠す瞬間だけ WS_EX_TOOLWINDOW を付けてプレビューの対象から外し、隠し終わったら外す。
+		/// </summary>
+		private void AddToolWindowStyleForHide(IntPtr hwnd)
+		{
+			if (_toolWindowStyleAddedForHide) return;
+			var style = Win32Helper.GetWindowLongPtr(hwnd, Win32Helper.GWL_STYLE).ToInt64();
+			if ((style & Win32Helper.WS_DLGFRAME) == 0) return;
+			var exStyle = Win32Helper.GetWindowLongPtr(hwnd, Win32Helper.GWL_EXSTYLE).ToInt64();
+			if ((exStyle & Win32Helper.WS_EX_TOOLWINDOW) != 0) return;
+			Win32Helper.SetWindowLongPtr(hwnd, Win32Helper.GWL_EXSTYLE, new IntPtr(exStyle | Win32Helper.WS_EX_TOOLWINDOW));
+			_toolWindowStyleAddedForHide = true;
+		}
+
+		// 付けるのは元々 WS_EX_TOOLWINDOW を持たない窓だけなので、ビットを外せば元の拡張スタイルに戻る
+		private void RemoveToolWindowStyleAddedForHide(IntPtr hwnd)
+		{
+			if (!_toolWindowStyleAddedForHide) return;
+			_toolWindowStyleAddedForHide = false;
+			var exStyle = Win32Helper.GetWindowLongPtr(hwnd, Win32Helper.GWL_EXSTYLE).ToInt64();
+			Win32Helper.SetWindowLongPtr(hwnd, Win32Helper.GWL_EXSTYLE, new IntPtr(exStyle & ~(long)Win32Helper.WS_EX_TOOLWINDOW));
 		}
 
 		/// <summary>

@@ -23,7 +23,14 @@ namespace AvalonDock
 				  WS_CLIPSIBLINGS = 0x04000000,
 				  WS_CLIPCHILDREN = 0x02000000,
 				  WS_TABSTOP = 0x00010000,
-				  WS_GROUP = 0x00020000;
+				  WS_GROUP = 0x00020000,
+				  WS_DLGFRAME = 0x00400000;
+
+		internal const int WS_EX_TOOLWINDOW = 0x00000080;
+
+		internal const int
+				  GWL_STYLE = -16,
+				  GWL_EXSTYLE = -20;
 
 		/// <summary>SetWindowPos Flags.</summary>
 		/// <seealso href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowpos"/>
@@ -135,6 +142,10 @@ namespace AvalonDock
 
 		internal const int WM_WINDOWPOSCHANGED = 0x0047;
 		internal const int WM_WINDOWPOSCHANGING = 0x0046;
+		internal const int WM_SHOWWINDOW = 0x0018;
+
+		// WM_SHOWWINDOW の lParam
+		internal const int SW_PARENTCLOSING = 1;
 		internal const int WM_NCMOUSEMOVE = 0xa0;
 		internal const int WM_NCLBUTTONDOWN = 0xA1;
 		internal const int WM_NCLBUTTONUP = 0xA2;
